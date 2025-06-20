@@ -5,24 +5,37 @@ import LinearGradient from "react-native-linear-gradient";
 import Header from "../components/Header";
 import Category from "../components/Category";
 import ProductCard from "../components/ProductCard";
+import data from "../data/data.json";
 
 const categories = ["Trending Now", "All", "New", "Mens", "Womens"];
 
 const HomeScreen = () => {
+  const [products, setProducts] = useState(data.products);
   const [selected, setSelected] = useState("Mens");
-  const [isLiked, setIsLiked] = useState(false);
+
+  const handleLiked = (item) => {
+    const newProducts = products.map((prod) => {
+      if (prod.id === item.id) {
+        return {
+          ...prod,
+          isLiked: !prod.isLiked, // ✅ Keep other props and toggle isLiked
+        };
+      }
+      return prod;
+    });
+    setProducts(newProducts);
+  };
 
   return (
     <LinearGradient colors={["#FDF0F3", "#FFFBFC"]} style={styles.container}>
       <Header />
 
-      {/* Product list */}
       <FlatList
         numColumns={2}
         ListHeaderComponent={
           <>
             <Text style={styles.matchText}>Match Your Style</Text>
-            {/* input container */}
+
             <View style={styles.inputContainer}>
               <View style={styles.iconContainer}>
                 <Fontisto name={"search"} size={26} color={"#C0C0C0"} />
@@ -33,7 +46,7 @@ const HomeScreen = () => {
                 placeholderTextColor="#C0C0C0"
               />
             </View>
-            {/* category section */}
+
             <FlatList
               data={categories}
               renderItem={({ item }) => (
@@ -44,28 +57,18 @@ const HomeScreen = () => {
                 />
               )}
               keyExtractor={(item) => item}
-              horizontal={true}
+              horizontal
               showsHorizontalScrollIndicator={false}
             />
           </>
         }
-        data={[1, 2, 3, 4, 5, 6]}
-        renderItem={({item, index})=>(
-          <ProductCard item={item} isLiked={isLiked} setIsLiked={setIsLiked}/>
+        data={products}
+        renderItem={({ item }) => (
+          <ProductCard item={item} handleLiked={handleLiked} />
         )}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 150,
-        }}
+        contentContainerStyle={{ paddingBottom: 150 }}
       />
-      {/* <View
-        style={{
-          flexDirection: "row",
-        }}
-      >
-        <ProductCard />
-        <ProductCard />
-      </View> */}
     </LinearGradient>
   );
 };
@@ -78,7 +81,7 @@ const styles = StyleSheet.create({
   },
   matchText: {
     fontSize: 28,
-    color: "#000000", // ✅ corrected spelling
+    color: "#000000",
     marginTop: 25,
   },
   inputContainer: {
